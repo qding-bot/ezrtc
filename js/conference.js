@@ -456,7 +456,7 @@ function updateMuteImage(toggle) {
             isMuted = !isMuted;
             videoObject.muted = isMuted;
         }
-        muteButton.src = isMuted ? "https://webrtc-785976426.us-east-1.elb.amazonaws.com:8080/demos/images/button_unmute.png" : "https://webrtc-785976426.us-east-1.elb.amazonaws.com:8080/demos/images/button_mute.png";
+        muteButton.src = isMuted ? "images/button_unmute.png" : "images/button_mute.png";
     } else {
         muteButton.style.display = "none";
     }
