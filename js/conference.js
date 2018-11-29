@@ -20,21 +20,6 @@ function reshapeFull (parentw, parenth) {
     };
 }
 
-function reshapeTextEntryBox (parentw, parenth) {
-    return {
-        left: parentw / 4,
-        top: parenth / 4,
-        width: parentw / 2,
-        height: parenth / 4
-    }
-}
-
-function reshapeTextEntryField (parentw, parenth) {
-    return {
-        width: parentw - 40
-    }
-}
-
 var margin = 20;
 
 function reshapeToFullSize (parentw, parenth) {
@@ -64,7 +49,6 @@ function reshapeToFullSize (parentw, parenth) {
 // Similar for percentTop.
 //
 function setThumbSizeAspect (percentSize, percentLeft, percentTop, parentw, parenth, aspect) {
-
     var width, height;
     if (parentw < parenth * aspectRatio) {
         width = parentw * percentSize;
@@ -367,16 +351,6 @@ function muteButtonReshaper (parentw, parenth) {
     }
 }
 
-function reshapeTextEntryButton (parentw, parenth) {
-    var imagew = 32;
-    var imageh = 32;
-    if (parentw < parenth) {
-        return setThumbSizeButton(0.10, 0.51, 0.01, parentw, parenth, imagew, imageh);
-    } else {
-        return setThumbSizeButton(0.10, 0.01, 0.51, parentw, parenth, imagew, imageh);
-    }
-}
-
 
 function handleWindowResize () {
     var fullpage = document.getElementById('fullpage');
@@ -511,13 +485,12 @@ function callEverybodyElse (roomName, otherPeople) {
 
     var list = [];
     var connectCount = 0;
+    console.log(JSON.stringify(otherPeople));
     for (var easyrtcid in otherPeople) {
         list.push(easyrtcid);
     }
-    //
-    // Connect in reverse order. Latter arriving people are more likely to have
-    // empty slots.
-    //
+
+    // Connect in reverse order. Latter arriving people are more likely to have empty slots.
     function establishConnection (position) {
         function callSuccess () {
             easyrtc.sendPeerMessage(list[position], "im", getUrlVars()["aid"]);
@@ -543,105 +516,9 @@ function callEverybodyElse (roomName, otherPeople) {
 
 }
 
-
 function loginSuccess (myId) {
+    console.log(myId);
     expandThumb(0); // expand the mirror image initially.
-}
-
-
-function cancelText () {
-    document.getElementById('textentryBox').style.display = "none";
-    document.getElementById('textEntryButton').style.display = "block";
-}
-
-
-function sendText (e) {
-    document.getElementById('textentryBox').style.display = "none";
-    document.getElementById('textEntryButton').style.display = "block";
-    var stringToSend = document.getElementById('textentryField').value;
-    if (stringToSend && stringToSend !== "") {
-        for (var i = 0; i < maxCALLERS; i++) {
-            var easyrtcid = easyrtc.getIthCaller(i);
-            if (easyrtcid && easyrtcid != "") {
-                easyrtc.sendPeerMessage(easyrtcid, "im", stringToSend);
-            }
-        }
-    }
-    return false;
-}
-
-
-function showTextEntry () {
-    document.getElementById('textentryField').value = "";
-    document.getElementById('textentryBox').style.display = "block";
-    document.getElementById('textEntryButton').style.display = "none";
-    document.getElementById('textentryField').focus();
-}
-
-
-function showMessage (startX, startY, content) {
-    var fullPage = document.getElementById('fullpage');
-    var fullW = parseInt(fullPage.offsetWidth);
-    var fullH = parseInt(fullPage.offsetHeight);
-    var centerEndX = 0.2 * startX + 0.8 * fullW / 2;
-    var centerEndY = 0.2 * startY + 0.8 * fullH / 2;
-
-    var cloudObject = document.createElement("img");
-    cloudObject.src = "images/cloud.png";
-    cloudObject.style.width = "1px";
-    cloudObject.style.height = "1px";
-    cloudObject.style.left = startX + "px";
-    cloudObject.style.top = startY + "px";
-    fullPage.appendChild(cloudObject);
-
-    cloudObject.onload = function () {
-        cloudObject.style.left = startX + "px";
-        cloudObject.style.top = startY + "px";
-        cloudObject.style.width = "4px";
-        cloudObject.style.height = "4px";
-        cloudObject.style.opacity = 0.7;
-        cloudObject.style.zIndex = 5;
-        cloudObject.className = "transit boxCommon";
-        var textObject;
-
-        function removeCloud () {
-            if (textObject) {
-                fullPage.removeChild(textObject);
-                fullPage.removeChild(cloudObject);
-            }
-        }
-
-        setTimeout(function () {
-            cloudObject.style.left = centerEndX - fullW / 4 + "px";
-            cloudObject.style.top = centerEndY - fullH / 4 + "px";
-            cloudObject.style.width = (fullW / 2) + "px";
-            cloudObject.style.height = (fullH / 2) + "px";
-        }, 10);
-        setTimeout(function () {
-            textObject = document.createElement('div');
-            textObject.className = "boxCommon";
-            textObject.style.left = Math.floor(centerEndX - fullW / 8) + "px";
-            textObject.style.top = Math.floor(centerEndY) + "px";
-            textObject.style.fontSize = "36pt";
-            textObject.style.width = (fullW * 0.4) + "px";
-            textObject.style.height = (fullH * 0.4) + "px";
-            textObject.style.zIndex = 6;
-            textObject.appendChild(document.createTextNode(content));
-            fullPage.appendChild(textObject);
-            textObject.onclick = removeCloud;
-            cloudObject.onclick = removeCloud;
-        }, 1000);
-        setTimeout(function () {
-            cloudObject.style.left = startX + "px";
-            cloudObject.style.top = startY + "px";
-            cloudObject.style.width = "4px";
-            cloudObject.style.height = "4px";
-            fullPage.removeChild(textObject);
-        }, 9000);
-        setTimeout(function () {
-            fullPage.removeChild(cloudObject);
-        }, 10000);
-    }
 }
 
 function messageListener (easyrtcid, msgType, content) {
@@ -651,14 +528,13 @@ function messageListener (easyrtcid, msgType, content) {
             var startX = parseInt(startArea.offsetLeft) + parseInt(startArea.offsetWidth) / 2;
             var startY = parseInt(startArea.offsetTop) + parseInt(startArea.offsetHeight) / 2;
             console.log(content + ' from ' + easyrtcid);
-            // showMessage(startX, startY, content);
         }
     }
 }
 
 function getUrlVars () {
-    var vars = {};
-    var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function (m, key, value) {
+    const vars = {};
+    const parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function (m, key, value) {
         vars[key] = value;
     });
     return vars;
@@ -666,18 +542,15 @@ function getUrlVars () {
 
 function appInit () {
     var roomName = getUrlVars()["room"];
-    // console.log(roomName);
 
     // Prep for the top-down layout manager
     setReshaper('fullpage', reshapeFull);
     for (var i = 0; i < numVideoOBJS; i++) {
         prepVideoBox(i);
     }
+
     setReshaper('killButton', killButtonReshaper);
     setReshaper('muteButton', muteButtonReshaper);
-    // setReshaper('textentryBox', reshapeTextEntryBox);
-    // setReshaper('textentryField', reshapeTextEntryField);
-    // setReshaper('textEntryButton', reshapeTextEntryButton);
 
     updateMuteImage(false);
     window.onresize = handleWindowResize;
@@ -693,7 +566,7 @@ function appInit () {
     easyrtc.setOnCall(function (easyrtcid, slot) {
         console.log("getConnection count=" + easyrtc.getConnectionCount());
         boxUsed[slot + 1] = true;
-        if (activeBox == 0) { // first connection
+        if (activeBox === 0) { // first connection
             collapseToThumb();
             // document.getElementById('textEntryButton').style.display = 'block';
         }
@@ -701,16 +574,19 @@ function appInit () {
         handleWindowResize();
     });
 
+    easyrtc.setOnError(function (errEvent) {
+        console.log(errEvent.errorText);
+    });
 
     easyrtc.setOnHangup(function (easyrtcid, slot) {
         boxUsed[slot + 1] = false;
-        if (activeBox > 0 && slot + 1 == activeBox) {
+        if (activeBox > 0 && slot + 1 === activeBox) {
             collapseToThumb();
         }
         setTimeout(function () {
             document.getElementById(getIdOfBox(slot + 1)).style.visibility = "hidden";
 
-            if (easyrtc.getConnectionCount() == 0) { // no more connections
+            if (easyrtc.getConnectionCount() === 0) { // no more connections
                 expandThumb(0);
                 // document.getElementById('textEntryButton').style.display = 'none';
                 // document.getElementById('textentryBox').style.display = 'none';
