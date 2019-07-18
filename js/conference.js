@@ -556,7 +556,7 @@ function appInit () {
     window.onresize = handleWindowResize;
     handleWindowResize(); //initial call of the top-down layout manager
 
-    easyrtc.setSocketUrl("https://ezrtc.cybeye.com:8080");
+    easyrtc.setSocketUrl("http://18.234.194.129:8080");
     easyrtc.setRoomOccupantListener(callEverybodyElse);
     easyrtc.easyApp(roomName, "box0", ["box1", "box2", "box3"], loginSuccess);
     easyrtc.setPeerListener(messageListener);
