@@ -353,9 +353,9 @@ function muteButtonReshaper (parentw, parenth) {
 
 
 function handleWindowResize () {
-    var fullpage = document.getElementById('fullpage');
-    fullpage.style.width = window.innerWidth + "px";
-    fullpage.style.height = window.innerHeight + "px";
+    // var fullpage = document.getElementById('fullpage');
+    // fullpage.style.width = window.innerWidth + "px";
+    // fullpage.style.height = window.innerHeight + "px";
     connectCount = easyrtc.getConnectionCount();
 
     function applyReshape (obj, parentw, parenth) {
@@ -404,33 +404,40 @@ function collapseToThumbHelper () {
         var id = getIdOfBox(activeBox);
         document.getElementById(id).style.zIndex = 2;
         setReshaper(id, reshapeThumbs[activeBox]);
-        document.getElementById('muteButton').style.display = "none";
-        document.getElementById('killButton').style.display = "none";
+        // 07-25 comment
+        // document.getElementById('muteButton').style.display = "none";
+        // document.getElementById('killButton').style.display = "none";
         activeBox = -1;
     }
 }
 
 function collapseToThumb () {
+    console.log('collapseToThumb is called')
     collapseToThumbHelper();
     activeBox = -1;
     updateMuteImage(false);
-    handleWindowResize();
+   // handleWindowResize();
 
 }
 
 function updateMuteImage (toggle) {
     var muteButton = document.getElementById('muteButton');
-    if (activeBox > 0) { // no kill button for self video
-        muteButton.style.display = "block";
-        var videoObject = document.getElementById(getIdOfBox(activeBox));
+    
+    var totalCount = easyrtc.getConnectionCount();
+    console.log('killActiveBox is called, activeBox:', activeBox, ' total count:', totalCount)
+
+    if (totalCount > 0) { // no kill button for self video
+        // 07-25 comment 
+        //muteButton.style.display = "block";
+        var videoObject = document.getElementById(getIdOfBox(totalCount));
         var isMuted = videoObject.muted ? true : false;
         if (toggle) {
             isMuted = !isMuted;
             videoObject.muted = isMuted;
         }
-        muteButton.src = isMuted ? "images/button_unmute.png" : "images/button_mute.png";
+        muteButton.src = isMuted ? "images/tcmuteon.png" : "images/tcmute.png";
     } else {
-        muteButton.style.display = "none";
+       // muteButton.style.display = "none";
     }
 }
 
@@ -442,13 +449,15 @@ function expandThumb (whichBox) {
     }
     if (lastActiveBox != whichBox) {
         var id = getIdOfBox(whichBox);
+        console.log('assigning activeBox:', whichBox)
         activeBox = whichBox;
         setReshaper(id, reshapeToFullSize);
         document.getElementById(id).style.zIndex = 1;
         if (whichBox > 0) {
-            document.getElementById('muteButton').style.display = "block";
+            // // 07-25 comment 
+            //document.getElementById('muteButton').style.display = "block";
             updateMuteImage();
-            document.getElementById('killButton').style.display = "block";
+            //document.getElementById('killButton').style.display = "block";
         }
     }
     updateMuteImage(false);
@@ -465,17 +474,23 @@ function prepVideoBox (whichBox) {
 
 
 function killActiveBox () {
-    if (activeBox > 0) {
-        var easyrtcid = easyrtc.getIthCaller(activeBox - 1);
+    
+    var totalCount = easyrtc.getConnectionCount();
+    console.log('killActiveBox is called, activeBox:', activeBox, ' total count:', totalCount)
+    if (totalCount > 0) {
+        var easyrtcid = easyrtc.getIthCaller(totalCount - 1);
+        console.log('easyrtcid:', easyrtcid)
         collapseToThumb();
         setTimeout(function () {
             easyrtc.hangup(easyrtcid);
         }, 400);
+        document.getElementById('killButton').style.display = "none";
     }
 }
 
 
 function muteActiveBox () {
+    console.log('muteActiveBox is called')
     updateMuteImage(true);
 }
 
@@ -541,11 +556,22 @@ function getUrlVars () {
 }
 
 function appInit () {
-    var roomName = getUrlVars()["room"];
+    var queryString = getUrlVars();
+    var roomName = queryString["room"];
+    var mode = queryString["mode"];
+    var join = queryString["join"];
+    var user = queryString["user"];
+
+    console.log('roomName: ' + roomName)
+    console.log('mode: ' + mode)
+    console.log('join: ' + join)
+    console.log('user: ' + user)
 
     // Prep for the top-down layout manager
     setReshaper('fullpage', reshapeFull);
+
     for (var i = 0; i < numVideoOBJS; i++) {
+        console.log('i ' + i)
         prepVideoBox(i);
     }
 
@@ -554,11 +580,9 @@ function appInit () {
 
     updateMuteImage(false);
     window.onresize = handleWindowResize;
-    handleWindowResize(); //initial call of the top-down layout manager
+    //handleWindowResize(); //initial call of the top-down layout manager
 
-    easyrtc.enableVideo(false);
-    easyrtc.enableVideoReceive(false);
-    easyrtc.setSocketUrl("https://ezrtc.one1tree.com.cn");
+    easyrtc.setSocketUrl("https://ezrtc.cybeye.com");
     easyrtc.setRoomOccupantListener(callEverybodyElse);
     easyrtc.easyApp(roomName, "box0", ["box1", "box2", "box3"], loginSuccess);
     easyrtc.setPeerListener(messageListener);
@@ -566,6 +590,7 @@ function appInit () {
         easyrtc.showError("LOST-CONNECTION", "Lost connection to signaling server");
     });
     easyrtc.setOnCall(function (easyrtcid, slot) {
+        console.log('slot:', slot)
         console.log("getConnection count=" + easyrtc.getConnectionCount());
         boxUsed[slot + 1] = true;
         if (activeBox === 0) { // first connection
@@ -573,7 +598,7 @@ function appInit () {
             // document.getElementById('textEntryButton').style.display = 'block';
         }
         document.getElementById(getIdOfBox(slot + 1)).style.visibility = "visible";
-        handleWindowResize();
+        //handleWindowResize();
     });
 
     easyrtc.setOnError(function (errEvent) {
