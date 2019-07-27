@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="EN">
+<meta charset="utf-8"/>
+<head>
+    <title>EasyRTC Show Mode</title>
+    <link rel="stylesheet" type="text/css" href="css/easyrtc.css"/>
+
+    <!-- Assumes global locations for socket.io.js and easyrtc.js -->
+    <script src="js/socket.io.js"></script>
+    <script type="text/javascript" src="js/easyrtc.js"></script>
+    <script type="text/javascript" src="js/showmode.js"></script>
+
+</head>
+<body onload="appInit()">
+<div id="demoContainer" align="center">
+    <div id="videos">
+        <video autoplay="autoplay" playsinline="playsinline" id="selfVideo" class="easyrtcMirror" muted="muted"></video>
+        <video poster="images/user_icon.png" autoplay="autoplay" playsinline="playsinline" id="callerVideo" onclick="this.play()"></video>
+
+    </div>
+    <div id="audioSinkButtons">
+    </div>
+
+    <div id="connectControls">
+        <div id="connection">
+<!--            <button id="disconnectButton" onclick="disconnect()">Disconnect</button>-->
+            <button id="hangupButton" disabled="disabled" onclick="hangup()">Hangup</button>
+        </div>
+
+        <strong>Connected users:</strong>
+        <div id="otherClients"></div>
+    </div>
+</div>
+</body>
+</html>
