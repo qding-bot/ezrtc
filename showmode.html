@@ -15,20 +15,14 @@
 <div id="demoContainer" align="center">
     <div id="videos">
         <video autoplay="autoplay" playsinline="playsinline" id="selfVideo" class="easyrtcMirror" muted="muted"></video>
-        <video poster="images/user_icon.png" autoplay="autoplay" playsinline="playsinline" id="callerVideo" onclick="this.play()"></video>
-
-    </div>
-    <div id="audioSinkButtons">
     </div>
 
     <div id="connectControls">
         <div id="connection">
-<!--            <button id="disconnectButton" onclick="disconnect()">Disconnect</button>-->
             <button id="hangupButton" disabled="disabled" onclick="hangup()">Hangup</button>
+            <button id="unMuteButton" disabled="disabled" onclick="unMuteAll()">Unmute All</button>
+            <button id="muteButton" disabled="disabled" onclick="muteAll()">Mute All</button>
         </div>
-
-        <strong>Connected users:</strong>
-        <div id="otherClients"></div>
     </div>
 </div>
 </body>
